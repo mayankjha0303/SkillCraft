@@ -1,0 +1,160 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Tic-Tac-Toe</title>
+  <style>
+    * {
+      box-sizing: border-box;
+    }
+
+    body {
+      font-family: sans-serif;
+      text-align: center;
+      margin: 0;
+      padding: 1em;
+      background-color: #fafafa;
+    }
+
+    h1 {
+      font-size: 2em;
+      margin-bottom: 0.5em;
+    }
+
+    .controls {
+      margin-bottom: 1em;
+    }
+
+    button {
+      padding: 0.6em 1.2em;
+      margin: 0.3em;
+      font-size: 1em;
+      border: none;
+      border-radius: 5px;
+      background-color: #4CAF50;
+      color: white;
+      cursor: pointer;
+    }
+
+    button:hover {
+      background-color: #45a049;
+    }
+
+    .status {
+      margin: 1em 0;
+      font-size: 1.2em;
+      min-height: 1.5em;
+    }
+
+    .board {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 1vw;
+      max-width: 90vw;
+      margin: 0 auto;
+      aspect-ratio: 1;
+    }
+
+    .cell {
+      background: #f2f2f2;
+      border: 1px solid #ccc;
+      font-size: 8vw;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      user-select: none;
+      cursor: pointer;
+      aspect-ratio: 1;
+    }
+
+    @media (min-width: 600px) {
+      .board {
+        max-width: 400px;
+        gap: 10px;
+      }
+
+      .cell {
+        font-size: 2.5em;
+      }
+    }
+  </style>
+</head>
+<body>
+
+  <h1>Tic-Tac-Toe</h1>
+  <div class="controls">
+    <button onclick="startGame(false)">2 Players</button>
+    <button onclick="startGame(true)">Play vs Computer</button>
+  </div>
+  <div class="status" id="status">Click a button to start</div>
+  <div class="board" id="board"></div>
+  <button onclick="startGame(vsComputer)">Restart</button>
+
+  <script>
+    let board = Array(9).fill('');
+    let currentPlayer = 'X';
+    let gameActive = false;
+    let vsComputer = false;
+
+    const statusDisplay = document.getElementById('status');
+    const boardElement = document.getElementById('board');
+
+    function startGame(vsAI) {
+      board = Array(9).fill('');
+      currentPlayer = 'X';
+      gameActive = true;
+      vsComputer = vsAI;
+      statusDisplay.textContent = `Player ${currentPlayer}'s turn`;
+      renderBoard();
+    }
+
+    function renderBoard() {
+      boardElement.innerHTML = '';
+      board.forEach((cell, idx) => {
+        const cellElement = document.createElement('div');
+        cellElement.classList.add('cell');
+        cellElement.textContent = cell;
+        cellElement.addEventListener('click', () => handleClick(idx));
+        boardElement.appendChild(cellElement);
+      });
+    }
+
+    function handleClick(index) {
+      if (!gameActive || board[index] !== '') return;
+      board[index] = currentPlayer;
+      renderBoard();
+
+      if (checkWin(currentPlayer)) {
+        statusDisplay.textContent = `Player ${currentPlayer} wins!`;
+        gameActive = false;
+      } else if (board.every(cell => cell !== '')) {
+        statusDisplay.textContent = 'Draw!';
+        gameActive = false;
+      } else {
+        currentPlayer = currentPlayer === 'X' ? 'O' : 'X';
+        statusDisplay.textContent = `Player ${currentPlayer}'s turn`;
+        if (vsComputer && currentPlayer === 'O') {
+          setTimeout(computerMove, 500);
+        }
+      }
+    }
+
+    function computerMove() {
+      let available = board.map((v, i) => v === '' ? i : null).filter(i => i !== null);
+      let choice = available[Math.floor(Math.random() * available.length)];
+      handleClick(choice);
+    }
+
+    function checkWin(player) {
+      const winPatterns = [
+        [0,1,2], [3,4,5], [6,7,8],  // rows
+        [0,3,6], [1,4,7], [2,5,8],  // columns
+        [0,4,8], [2,4,6]            // diagonals
+      ];
+      return winPatterns.some(pattern =>
+        pattern.every(index => board[index] === player)
+      );
+    }
+  </script>
+</body>
+</html>
