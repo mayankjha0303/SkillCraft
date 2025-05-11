@@ -1,0 +1,197 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>To-Do App</title>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      padding: 2rem;
+      background: #f4f4f4;
+      max-width: 600px;
+      margin: auto;
+    }
+
+    h1, h2 {
+      text-align: center;
+    }
+
+    .todo-form {
+      display: flex;
+      flex-direction: column;
+      gap: 0.5rem;
+      margin-bottom: 1.5rem;
+    }
+
+    input[type="text"],
+    input[type="datetime-local"] {
+      padding: 0.6rem;
+      font-size: 1rem;
+      width: 100%;
+      border: 1px solid #ccc;
+      border-radius: 5px;
+    }
+
+    button {
+      padding: 0.6rem;
+      font-size: 1rem;
+      background: #28a745;
+      color: white;
+      border: none;
+      border-radius: 5px;
+      cursor: pointer;
+    }
+
+    button:hover {
+      background: #218838;
+    }
+
+    ul {
+      list-style: none;
+      padding: 0;
+    }
+
+    li {
+      background: #fff;
+      border: 1px solid #ddd;
+      padding: 1rem;
+      margin-bottom: 0.5rem;
+      border-radius: 5px;
+    }
+
+    .task-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      flex-wrap: wrap;
+    }
+
+    .task-title {
+      font-size: 1.1em;
+      cursor: pointer;
+    }
+
+    .task-title.completed {
+      text-decoration: line-through;
+      color: gray;
+    }
+
+    .task-buttons {
+      display: flex;
+      gap: 0.5rem;
+      margin-top: 0.5rem;
+    }
+
+    .task-buttons button {
+      font-size: 0.9rem;
+      padding: 0.4rem 0.8rem;
+    }
+
+    .edit {
+      background-color: #ffc107;
+      color: black;
+    }
+
+    .delete {
+      background-color: #dc3545;
+    }
+
+    @media (max-width: 500px) {
+      body {
+        padding: 1rem;
+      }
+    }
+  </style>
+</head>
+<body>
+
+  <h1>TO DO</h1>
+
+  <form class="todo-form" onsubmit="addTask(event)">
+    <input type="text" id="taskInput" placeholder="Enter a task" required />
+    <input type="datetime-local" id="dateInput" />
+    <button type="submit">Add Task</button>
+  </form>
+
+  <h2>All Tasks</h2>
+  <ul id="taskList"></ul>
+
+  <script>
+    let tasks = [];
+
+    function addTask(event) {
+      event.preventDefault();
+      const taskText = document.getElementById("taskInput").value.trim();
+      const taskDate = document.getElementById("dateInput").value;
+      if (!taskText) return;
+
+      tasks.push({ text: taskText, date: taskDate, completed: false });
+      document.getElementById("taskInput").value = "";
+      document.getElementById("dateInput").value = "";
+      renderTasks();
+    }
+
+    function toggleComplete(index) {
+      tasks[index].completed = !tasks[index].completed;
+      renderTasks();
+    }
+
+    function deleteTask(index) {
+      tasks.splice(index, 1);
+      renderTasks();
+    }
+
+    function editTask(index) {
+      const newText = prompt("Edit task:", tasks[index].text);
+      if (newText !== null && newText.trim() !== "") {
+        tasks[index].text = newText.trim();
+        renderTasks();
+      }
+    }
+
+    function renderTasks() {
+      const taskList = document.getElementById("taskList");
+      taskList.innerHTML = "";
+
+      tasks.forEach((task, index) => {
+        const li = document.createElement("li");
+
+        const header = document.createElement("div");
+        header.className = "task-header";
+
+        const title = document.createElement("span");
+        title.className = "task-title" + (task.completed ? " completed" : "");
+        title.textContent = task.text;
+        title.onclick = () => toggleComplete(index);
+
+        const time = document.createElement("small");
+        time.textContent = task.date ? `Due: ${new Date(task.date).toLocaleString()}` : "";
+
+        header.appendChild(title);
+        header.appendChild(time);
+
+        const btnGroup = document.createElement("div");
+        btnGroup.className = "task-buttons";
+
+        const editBtn = document.createElement("button");
+        editBtn.textContent = "Edit";
+        editBtn.className = "edit";
+        editBtn.onclick = () => editTask(index);
+
+        const deleteBtn = document.createElement("button");
+        deleteBtn.textContent = "Delete";
+        deleteBtn.className = "delete";
+        deleteBtn.onclick = () => deleteTask(index);
+
+        btnGroup.appendChild(editBtn);
+        btnGroup.appendChild(deleteBtn);
+
+        li.appendChild(header);
+        li.appendChild(btnGroup);
+        taskList.appendChild(li);
+      });
+    }
+  </script>
+
+</body>
+</html>
